@@ -1,6 +1,10 @@
 <template>
   <div id="app">
-    <ejs-button @click.native="buttonClickedDebounce">multiple click</ejs-button>
+    <ejs-button @click.native="buttonClicked">multiple click - not debounced</ejs-button>
+    <br><br>
+    <ejs-button @click.native="buttonClickedDebounce">multiple click - debounced</ejs-button>
+    <br><br>
+    <ejs-button @click.native="clear">clear</ejs-button>
     <br><br>
     debounce milliseconds: <input type="text" v-model="debounceMilliseconds">
     <div width="100" height="400" style="width: 100%; height: 400px; border: 1px groove #3f51b5; margin-top:10px;">
@@ -12,7 +16,7 @@
 <script>
   import Vue from 'vue';
   import { ButtonPlugin } from '@syncfusion/ej2-vue-buttons';
-  import _debounce from 'lodash/debounce';
+  import { getDebouncedFunction } from './components/LodashUtil';
 
   Vue.use(ButtonPlugin);
 
@@ -25,17 +29,22 @@
       debounceMilliseconds: 300
     }
   },
+  watch: {
+    debounceMilliseconds(val) {
+      console.log('### debounceMilliseconds changes ### - ' + val);
+      this.buttonClickedDebounce = getDebouncedFunction(function(args) {
+        this.buttonClicked(args);
+      }, val)
+    }
+  },
   components: {
-
   },
   methods: {
-    buttonClickedDebounce: _debounce(function() {
-      this.buttonClicked();
-    }, 300, {
-      leading: true,
-      trailing: false
+    buttonClickedDebounce: getDebouncedFunction(function (args) {
+      this.buttonClicked(args);
     }),
-    buttonClicked() {
+    buttonClicked(args) {
+      // console.log(args);
       this.clickedNum++;
       let appendString = `clicked ${this.clickedNum} `;
 
@@ -44,6 +53,10 @@
       } else {
         this.clickedString = appendString;
       }
+    },
+    clear() {
+      this.clickedNum = 0;
+      this.clickedString = null;
     }
   }
 }

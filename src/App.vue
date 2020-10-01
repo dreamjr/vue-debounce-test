@@ -1,8 +1,10 @@
 <template>
   <div id="app">
-    <ejs-button @click.native="buttonClicked">multiple click - not debounced</ejs-button>
+    <ejs-button @click.native="buttonClicked">multiple click - original</ejs-button>
     <br><br>
-    <ejs-button @click.native="buttonClickedDebounce">multiple click - debounced</ejs-button>
+    <ejs-button @click.native="buttonClickedDebounce">multiple click - debounce</ejs-button>
+    <br><br>
+    <ejs-button @click.native="buttonClickedThrottle">multiple click - throttle</ejs-button>
     <br><br>
     <ejs-button @click.native="clear">clear</ejs-button>
     <br><br>
@@ -16,7 +18,7 @@
 <script>
   import Vue from 'vue';
   import { ButtonPlugin } from '@syncfusion/ej2-vue-buttons';
-  import { getDebouncedFunction } from './components/LodashUtil';
+  import { getDebouncedFunction, getThrottleFunction } from './components/LodashUtil';
 
   Vue.use(ButtonPlugin);
 
@@ -34,13 +36,19 @@
       console.log('### debounceMilliseconds changes ### - ' + val);
       this.buttonClickedDebounce = getDebouncedFunction(function(args) {
         this.buttonClicked(args);
-      }, val)
+      }, val);
+      this.buttonClickedThrottle = getThrottleFunction(function(args) {
+        this.buttonClicked(args);
+      }, val);
     }
   },
   components: {
   },
   methods: {
     buttonClickedDebounce: getDebouncedFunction(function (args) {
+      this.buttonClicked(args);
+    }),
+    buttonClickedThrottle: getThrottleFunction(function(args) {
       this.buttonClicked(args);
     }),
     buttonClicked(args) {
